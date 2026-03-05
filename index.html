@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Unidade 4: Gestão Avançada de Software</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e67e22;
+            --info: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #fdfdfd;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            color: var(--primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 5px solid var(--secondary);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+        .context-alert {
+            background: #fff5e6;
+            border: 1px solid #ffe0b2;
+            border-left: 5px solid var(--secondary);
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+
+        .question-card {
+            background: white;
+            border: 1px solid #eee;
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .question-card:hover { border-color: var(--secondary); }
+
+        .question-text { font-weight: 600; font-size: 1.1rem; margin-bottom: 15px; display: block; }
+
+        .options-group { display: flex; flex-direction: column; gap: 10px; }
+
+        .option-item {
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-item:hover { background: #fffbf7; border-color: var(--secondary); }
+
+        .correct { background: #e8f5e9 !important; border-color: #2e7d32 !important; color: #1b5e20; }
+        .wrong { background: #ffebee !important; border-color: #c62828 !important; color: #b71c1c; }
+
+        .btn-finish {
+            width: 100%;
+            padding: 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #result-summary {
+            display: none;
+            margin-top: 30px;
+            padding: 40px;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Simulado: Projeto de Software Avançado</h1>
+        <p>Unidade 4: SCM, DevOps e Observabilidade</p>
+    </header>
+
+    <form id="quizForm">
+        <div id="questions-placeholder"></div>
+        <button type="button" class="btn-finish" onclick="checkAll()">Finalizar Simulado Avançado</button>
+    </form>
+
+    <div id="result-summary"></div>
+</div>
+
+<script>
+    const data = [
+        {
+            ctx: "No projeto Rastre, a arquitetura da aplicação deve ser rigorosamente seguida para garantir a estabilidade do produto.",
+            q: "Qual mecanismo é responsável por garantir esse rigor técnico e o controle dos artefatos (itens de configuração) que compõem o software?",
+            options: ["Gestão de Recursos Humanos.", "Software Configuration Management (SCM).", "Marketing Digital.", "Suporte por Telefone.", "Gestão de Compras."],
+            ans: 1
+        },
+        {
+            ctx: "Um conjunto de itens de software estáveis consolidados permite gerar uma versão do software pronta para uso.",
+            q: "Como se chama essa versão instalável gerada a partir de itens configurados e estáveis?",
+            options: ["Rascunho.", "Baseline (Linha de Base).", "Beta Teste.", "Código Fonte Bruto.", "Documento de Texto."],
+            ans: 1
+        },
+        {
+            ctx: "A equipe de desenvolvimento precisa garantir que cada pequena alteração no código não quebre o sistema inteiro.",
+            q: "A prática de integrar o código várias vezes ao dia, executando testes automáticos, é chamada de:",
+            options: ["Cascata Tradicional.", "Integração Contínua (CI).", "Desenvolvimento Lento.", "Backup Mensal.", "Revisão Manual Anual."],
+            ans: 1
+        },
+        {
+            ctx: "Após a integração bem-sucedida, o software precisa ser enviado para o ambiente de produção de forma rápida e segura.",
+            q: "O processo que visa tornar o deploy do software num processo rotineiro e confiável é:",
+            options: ["Entrega Contínua (CD).", "Design de Logotipos.", "Venda de Licenças.", "Treinamento de RH.", "Aumento de Hardware."],
+            ans: 0
+        },
+        {
+            ctx: "Historicamente, as equipas de Desenvolvimento (Dev) e Operações (Ops) trabalhavam isoladas, gerando conflitos.",
+            q: "Qual cultura/metodologia visa integrar estas equipas para acelerar o ciclo de vida do desenvolvimento?",
+            options: ["Scrum Isolado.", "DevOps.", "Hierarquia Rígida.", "Terceirização Total.", "Silo de Dados."],
+            ans: 1
+        },
+        {
+            ctx: "Num ambiente DevOps, os processos manuais são vistos como riscos e fontes de lentidão.",
+            q: "Qual é o pilar fundamental do DevOps para garantir velocidade e repetibilidade nos processos?",
+            options: ["Documentação em papel.", "Automação.", "Aumento do número de reuniões.", "Aprovação manual em todas as fases.", "Uso de e-mails para envio de código."],
+            ans: 1
+        },
+        {
+            ctx: "O sistema está no ar, mas a equipa precisa saber se ele está saudável ou se os utilizadores estão a ter erros silenciosos.",
+            q: "A capacidade de medir o estado interno de um sistema a partir dos dados que ele gera externamente chama-se:",
+            options: ["Observabilidade.", "Intuição.", "Sorte.", "Pessimismo.", "Manutenção Corretiva."],
+            options_text: ["Observabilidade", "Intuição", "Sorte", "Pessimismo", "Manutenção Corretiva"],
+            ans: 0
+        },
+        {
+            ctx: "Logs, Métricas e Tracing são fundamentais para entender o comportamento do software em produção.",
+            q: "Estes três elementos são conhecidos na engenharia moderna como:",
+            options: ["Os Inimigos do Código.", "Os Pilares da Observabilidade.", "A Tríade do Marketing.", "O Triângulo do PMI.", "Documentação Básica."],
+            ans: 1
+        },
+        {
+            ctx: "Uma falha num servidor ocorre e a equipa precisa identificar em qual microsserviço a requisição parou.",
+            q: "Qual técnica de observabilidade permite acompanhar o caminho de uma requisição através de vários serviços?",
+            options: ["Log de Erro Único.", "Métricas de CPU.", "Distributed Tracing (Rastreamento Distribuído).", "Print Screen.", "Ping."],
+            ans: 2
+        },
+        {
+            ctx: "A gestão de configuração (SCM) não lida apenas com código, mas com tudo o que é necessário para construir o software.",
+            q: "Qual destes itens NÃO costuma ser considerado um Item de Configuração (CI)?",
+            options: ["Código-fonte.", "Scripts de Banco de Dados.", "Ficheiros de Configuração.", "Mobiliário do Escritório.", "Documentação Técnica."],
+            ans: 3
+        },
+        {
+            ctx: "Num fluxo de CI/CD, o software passa por várias fases (compilação, teste, deploy) automaticamente.",
+            q: "Como se chama este fluxo automatizado no jargão de DevOps?",
+            options: ["Pipeline.", "Caminho de Ferro.", "Funil de Vendas.", "Labirinto de Código.", "Caixa de Entrada."],
+            ans: 0
+        },
+        {
+            ctx: "No projeto componente Rastre, deve haver rastreabilidade de todas as mudanças.",
+            q: "A rastreabilidade na gestão de configuração permite ao gestor saber:",
+            options: ["O nome de todos os clientes.", "Quem alterou o quê, quando e por que motivo no código.", "A previsão do tempo.", "O preço das ações da empresa.", "O número de cafés tomados pela equipa."],
+            ans: 1
+        },
+        {
+            ctx: "O conceito de 'Infrastructure as Code' (IaC) é comum em cenários avançados.",
+            q: "O que significa IaC no contexto de DevOps e SCM?",
+            options: ["Comprar servidores físicos por telefone.", "Gerir e provisionar a infraestrutura através de ficheiros de definição (código).", "Escrever o manual de hardware no Word.", "Desenhar diagramas de rede em papel.", "Contratar eletricistas para o data center."],
+            ans: 1
+        },
+        {
+            ctx: "A observabilidade ajuda a detetar 'anomalias' ou 'outliers'.",
+            q: "O que é um 'outlier' no contexto de monitorização de software?",
+            options: ["Um utilizador muito feliz.", "Um valor que foge significativamente do padrão normal de comportamento do sistema.", "Uma nova funcionalidade aprovada.", "O log de acesso bem-sucedido.", "O nome da versão do software."],
+            ans: 1
+        },
+        {
+            ctx: "O texto menciona que o SCM permite que a arquitetura seja 'rigorosamente seguida'.",
+            q: "Como o controle de versão (ferramenta de SCM) ajuda a manter esse rigor?",
+            options: ["Impedindo que qualquer pessoa escreva código.", "Permitindo revisões de código (Code Reviews) e auditoria de alterações.", "Apagando o código antigo automaticamente.", "Enviando alertas sonoros para o gestor.", "Bloqueando a internet dos programadores."],
+            ans: 1
+        },
+        {
+            ctx: "Diferente da monitorização tradicional, a observabilidade foca em:",
+            options: ["Saber se o servidor está ligado ou desligado.", "Entender 'por que' algo aconteceu, cruzando dados complexos.", "Contar o número de cliques no site.", "Gerar relatórios de horas trabalhadas.", "Substituir o teste de software."],
+            ans: 1
+        },
+        {
+            ctx: "O papel do gestor em projetos avançados envolve estimular a 'auto-organização'.",
+            q: "O que caracteriza uma equipa auto-organizada num ambiente DevOps?",
+            options: ["Trabalhar sem nenhum objetivo definido.", "Equipas que gerem as suas próprias tarefas e prazos com autonomia e transparência.", "Equipas que não aceitam ordens do cliente.", "Desenvolvedores que decidem os seus próprios salários.", "Ausência total de documentação."],
+            ans: 1
+        },
+        {
+            ctx: "O 'Feedback Loop' (Ciclo de Feedback) é vital no DevOps.",
+            q: "Por que o feedback rápido é importante para a qualidade do software?",
+            options: ["Para irritar os desenvolvedores.", "Para permitir correções imediatas e evitar que erros cheguem ao utilizador final.", "Para aumentar a burocracia do projeto.", "Para justificar a compra de novas ferramentas.", "Para garantir que o projeto demore mais tempo."],
+            ans: 1
+        },
+        {
+            ctx: "O termo 'Stable Baseline' é citado como objetivo do SCM.",
+            q: "O que deve acontecer se uma nova alteração quebra a estabilidade da Baseline?",
+            options: ["O projeto deve ser abandonado.", "O SCM deve permitir o 'rollback' (reversão) para o estado estável anterior.", "Deve-se ignorar o erro e continuar a programar.", "O gestor deve reescrever o código sozinho.", "O servidor deve ser formatado."],
+            ans: 1
+        },
+        {
+            ctx: "No infográfico da Unidade 4, a 'eficiência e transparência' são pilares da execução.",
+            q: "Qual o benefício da transparência em processos de SCM e DevOps?",
+            options: ["Esconder falhas do cliente.", "Permitir que todos na equipa saibam o estado real do projeto e da qualidade do código.", "Expor apenas os erros dos outros.", "Aumentar a competitividade negativa entre colegas.", "Reduzir o tempo de férias."],
+            ans: 1
+        }
+    ];
+
+    function render() {
+        const target = document.getElementById('questions-placeholder');
+        data.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="context-alert"><strong>Cenário:</strong> ${item.ctx}</div>
+                <span class="question-text">${i+1}. ${item.q}</span>
+                <div class="options-group">
+                    ${item.options.map((opt, idx) => `
+                        <label class="option-item" id="l-${i}-${idx}">
+                            <input type="radio" name="q${i}" value="${idx}" style="margin-right:15px">
+                            ${opt}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            target.appendChild(card);
+        });
+    }
+
+    function checkAll() {
+        let score = 0;
+        data.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            const correct = item.ans;
+
+            if (selected) {
+                const val = parseInt(selected.value);
+                if (val === correct) {
+                    score++;
+                    document.getElementById(`l-${i}-${val}`).classList.add('correct');
+                } else {
+                    document.getElementById(`l-${i}-${val}`).classList.add('wrong');
+                    document.getElementById(`l-${i}-${correct}`).classList.add('correct');
+                }
+            } else {
+                document.getElementById(`l-${i}-${correct}`).classList.add('correct');
+            }
+        });
+
+        const result = document.getElementById('result-summary');
+        result.style.display = 'block';
+        result.innerHTML = `<h2>Simulado de Gestão Avançada Concluído</h2><p style="font-size: 2rem">${score} / 20</p><p>${score >= 15 ? 'Excelente! Estás pronto para lidar com SCM e DevOps!' : 'Bom progresso. Revisa os conceitos de Observabilidade e Gestão de Configuração.'}</p>`;
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    render();
+</script>
+
+</body>
+</html>
